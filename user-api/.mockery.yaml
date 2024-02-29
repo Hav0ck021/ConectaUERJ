@@ -1,0 +1,12 @@
+with-expecter: false
+dir: "mocks"
+outpkg: "mocks"
+mockname: "{{.InterfaceName}}"
+
+packages:
+  disco-store-api/model:
+    config:
+      fileName: "{{.InterfaceName | lower}}_mock.go"
+    interfaces:
+      UserService:
+      UserRepository:
