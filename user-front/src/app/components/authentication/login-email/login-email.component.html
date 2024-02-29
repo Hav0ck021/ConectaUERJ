@@ -1,0 +1,51 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="row border rounded-5 p-3 bg-white shadow box-area">
+    <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
+      style="background: #3b65b3;">
+      <div class="featured-image mb-3">
+        <img src="../../../../assets/img/png/1.png" class="img-fluid" style="width: 350px;">
+      </div>
+      <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">Entre agora.
+      </p>
+      <small class="text-white text-wrap text-center"
+        style="width: 17rem;font-family: 'Courier New', Courier, monospace;">Junte-se a experientes Cinéfilos nesta
+        plataforma.</small>
+    </div>
+
+    <form class="col-md-6 right-box" [formGroup]="form">
+      <div class="row align-items-center">
+        <div class="header-text mb-2">
+          <h2><strong>Olá, de novo</strong></h2>
+          <p>Nós estamos feliz de ter você de volta.</p>
+        </div>
+        <div class="input-group mb-3 input-login">
+          <label for="">E-mail</label>
+          <input type="email" class="form-control form-control-lg bg-light fs-6" placeholder="Informe seu e-mail"
+            formControlName="email" [ngClass]="cssValidator(f.email)">
+          <div *ngIf="f.email.hasError('required') && !emailNotFound" class="invalid-feedback">
+            e-mail é obrigatório
+          </div>
+          <div *ngIf="f.email.hasError('email')" class="invalid-feedback">
+            email tem que ser válido.
+          </div>
+          <div *ngIf="emailNotFound" class="invalid-feedback">
+            email não cadastrado no sistema.
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <button class="btn btn-lg btn-primary w-100 fs-6"
+            (click)="searchUserByEmail()"><strong>Continuar</strong></button>
+        </div>
+        <div class="input-group mb-3">
+          <button class="btn btn-lg btn-light w-100 fs-6"><img src="../../../../assets/img/png/google.png"
+              style="width:20px" class="me-2"><small>Entre com Google</small></button>
+        </div>
+        <div class="row">
+          <small>Não possui uma conta? <a href="#">Cadastre-se</a></small>
+        </div>
+      </div>
+    </form>
+
+
+  </div>
+</div>

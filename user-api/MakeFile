@@ -1,0 +1,20 @@
+mock:
+	mockery
+
+test:
+	go test -json -v ./... 2>&1 | tee /tmp/gotest.log | gotestfmt
+
+
+SRC_DIR = api
+EXECUTABLE = bin/server 
+GO_BUILD = go build
+
+run: 
+	@go run api/main.go
+
+build:
+	@echo "Building $(EXECUTABLE)"
+	@$(GO_BUILD) -o $(EXECUTABLE) $(SRC_DIR)/main.go
+
+clean:
+	rm $(EXECUTABLE)
