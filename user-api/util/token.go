@@ -11,15 +11,27 @@ import (
 	"time"
 )
 
-var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
-
-func CreateToken(user model.User) (string, error) {
+func GenerateTokenLogin(user model.User) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":    user.Id,
 		"name":  user.Name,
 		"email": user.Email,
 		"exp":   time.Now().Add(time.Hour * 6).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(config.SecretKey))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+func GenerateResetPasswordToken(id string) (string, error) {
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  id,
+		"exp": time.Now().Add(time.Minute * 10).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(config.SecretKey))
@@ -77,6 +89,8 @@ func ExtractUserIdFromToken(c echo.Context) (string, error) {
 
 	return id, nil
 }
+
+var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
 
 func GenerateOTP(max int) string {
 	b := make([]byte, max)

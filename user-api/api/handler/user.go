@@ -17,13 +17,13 @@ type userHandler struct {
 }
 
 func NewUserHandler(userService model.UserService, authenticationService model.AuthenticationService) model.UserHandler {
-	return userHandler{
+	return &userHandler{
 		userService:           userService,
 		authenticationService: authenticationService,
 	}
 }
 
-func (uh userHandler) Create(c echo.Context) error {
+func (uh *userHandler) Create(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "Create"),
 		slog.String("handler", "authentication"))
@@ -51,7 +51,7 @@ func (uh userHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	err = uh.authenticationService.SendConfirmationEmailCode(userPayLoad.Email)
+	err = uh.authenticationService.SendOneTimePassword(userPayLoad.Email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -60,7 +60,7 @@ func (uh userHandler) Create(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
-func (uh userHandler) GetAll(c echo.Context) error {
+func (uh *userHandler) GetAll(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "GetALl"),
 		slog.String("handler", "user"))
@@ -80,7 +80,7 @@ func (uh userHandler) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, userResponse)
 }
 
-func (uh userHandler) GetById(c echo.Context) error {
+func (uh *userHandler) GetById(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "GetById"),
 		slog.String("handler", "user"))
@@ -107,7 +107,7 @@ func (uh userHandler) GetById(c echo.Context) error {
 	return c.JSON(http.StatusOK, userResponse)
 }
 
-func (uh userHandler) GetByName(c echo.Context) error {
+func (uh *userHandler) GetByName(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "GetByName"),
 		slog.String("handler", "user"))
@@ -134,7 +134,7 @@ func (uh userHandler) GetByName(c echo.Context) error {
 	return c.JSON(http.StatusOK, userResponse)
 }
 
-func (uh userHandler) GetByEmail(c echo.Context) error {
+func (uh *userHandler) GetByEmail(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "GetByEmail"),
 		slog.String("handler", "user"))
@@ -166,7 +166,7 @@ func (uh userHandler) GetByEmail(c echo.Context) error {
 	return c.JSON(http.StatusOK, userResponse)
 }
 
-func (uh userHandler) Update(c echo.Context) error {
+func (uh *userHandler) Update(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "update"),
 		slog.String("handler", "user"))
@@ -234,7 +234,7 @@ func (uh userHandler) Update(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (uh userHandler) Delete(c echo.Context) error {
+func (uh *userHandler) Delete(c echo.Context) error {
 	log := slog.With(
 		slog.String("func", "delete"),
 		slog.String("handler", "user"))

@@ -63,22 +63,10 @@ func (a *authenticationHandler) UpdatePassword(c echo.Context) error {
 		slog.String("func", "UpdatePassword"),
 		slog.String("handler", "authentication"))
 
-	userId := c.Param("userId")
-
-	if err := util.IsValidUUID(userId); err != nil {
-		log.Warn("Invalid params")
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	userIdFromToken, err := util.ExtractUserIdFromToken(c)
+	userId, err := util.ExtractUserIdFromToken(c)
 	if err != nil {
 		log.Warn("err to get user if from token")
 		return c.JSON(http.StatusUnauthorized, err)
-	}
-
-	if userId != userIdFromToken {
-		log.Warn("you cannot update the data of a user other than yourself")
-		return c.NoContent(http.StatusForbidden)
 	}
 
 	var updatePassword model.UpdatePassword
@@ -106,6 +94,66 @@ func (a *authenticationHandler) UpdatePassword(c echo.Context) error {
 
 	log.Info("UpdatePassword executed successfully")
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (a *authenticationHandler) ForgotPassword(c echo.Context) error {
+	log := slog.With(
+		slog.String("func", "ForgotPassword"),
+		slog.String("handler", "authentication"))
+
+	var requestBody model.RequestBody
+	if err := c.Bind(&requestBody); err != nil {
+		log.Warn("Failed to bind user data to model")
+		return c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	email := requestBody.Email
+
+	if err := a.authenticationService.SendOneTimePassword(email); err != nil {
+		log.Error("Errors: ", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	log.Info("One time password send successfully")
+	return c.NoContent(http.StatusOK)
+}
+
+func (a *authenticationHandler) ConfirmPasswordResetOtp(c echo.Context) error {
+	log := slog.With(
+		slog.String("func", "ConfirmPasswordResetOtp"),
+		slog.String("handler", "authentication"))
+
+	var confirmCodeEmail model.ConfirmCodeEmail
+	if err := c.Bind(&confirmCodeEmail); err != nil {
+		log.Warn("Failed to bind confirmCodeData data to model")
+		return c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	if err := confirmCodeEmail.Validate(); err != nil {
+		log.Warn("Invalid confirmCodeEmail data")
+		return c.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	err := a.authenticationService.CheckOneTimePassword(confirmCodeEmail)
+
+	if err != nil && errors.Is(err, model.ErrInvalidOTP) {
+		log.Warn("Expired token or wrong token")
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
+	if err != nil {
+		log.Error("Errors: ", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	token, err := a.authenticationService.ForgotPassword(confirmCodeEmail.Email)
+	if err != nil {
+		log.Error("Error to generate reset password token", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	log.Info("Token verified successfully")
+	return c.JSON(http.StatusOK, token)
 }
 
 func (a *authenticationHandler) ConfirmEmail(c echo.Context) error {

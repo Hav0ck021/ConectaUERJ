@@ -49,7 +49,9 @@ func configureAuthenticationRoutes(e *echo.Echo) {
 
 	group := e.Group("v1/authentication")
 	group.POST("/login", authenticationHandler.Login)
-	group.PATCH("/user/:userId/password", authenticationHandler.UpdatePassword, middleware.CheckLoggedIn)
-	group.PATCH("/ConfirmEmail", authenticationHandler.ConfirmEmail)
+	group.PATCH("/user/password", authenticationHandler.UpdatePassword, middleware.CheckLoggedIn)
+	group.PATCH("/confirmEmail", authenticationHandler.ConfirmEmail)
+	group.POST("/password/forgot", authenticationHandler.ForgotPassword)
+	group.POST("/password/forgot/otp", authenticationHandler.ConfirmPasswordResetOtp)
 
 }
